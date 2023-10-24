@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require('firebase-functions');
 const express = require('express');
 const helmet = require('helmet');
 const xss = require('xss-clean');
@@ -39,8 +39,25 @@ app.use(mongoSanitize());
 app.use(compression());
 
 // enable cors
-app.use(cors());
-app.options('*', cors());
+// app.use(cors());
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:4000', 'http://yourapp.com'];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // allow requests with no origin
+      // (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not ' + 'allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
+// app.options('*', cors());
 
 // jwt authentication
 app.use(passport.initialize());
@@ -56,7 +73,7 @@ app.use('/v1', routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  console.log('req', req)
+  console.log('req', req);
   next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
 });
 
