@@ -1,11 +1,9 @@
-const functions = require("firebase-functions");
 const mongoose = require('mongoose');
 const app = require('.');
 const config = require('./config/config');
 const logger = require('./config/logger');
 
-// let server;
-const server = http.createServer(app);
+let server;
 mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   logger.info('Connected to MongoDB', app);
   server = app.listen(config.port, () => {

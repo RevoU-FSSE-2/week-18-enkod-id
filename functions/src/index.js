@@ -66,8 +66,6 @@ app.use(errorConverter);
 // handle error
 app.use(errorHandler);
 
-
-// module.exports = app;
-
 exports.todolistBE = functions.https.onRequest(app);
 
+module.exports = app;

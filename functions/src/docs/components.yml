@@ -1,5 +1,25 @@
 components:
   schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+        dueDate:
+          type: string
+      example:
+        id: 5ebac534954b54139806c112
+        title: test task
+        description: fake desc
+        priority: low
+        dueDate: 29-10-2023
+
     User:
       type: object
       properties:
