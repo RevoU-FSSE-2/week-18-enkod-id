@@ -5,6 +5,15 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -17,6 +26,20 @@ function App() {
   const [priority, setPriority] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [todos, setTodos] = useState([])
+  const [checked, setChecked] = useState([0]);
+
+  const handleToggle = (value) => () => {
+    const currentIndex = checked.indexOf(value);
+    const newChecked = [...checked];
+
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+
+    setChecked(newChecked);
+  };
   // console.log('data', email, password)
   const URL = process.env.REACT_APP_BE_ENDPOINT
   // console.log('URL', URL)
@@ -29,11 +52,18 @@ function App() {
     setToken(tokenFromLS)
   }, [])
   const getTodos = async () => {
-    const response = await axios.get(`${URL}/v1/todos`,
-      config
-    )
-    console.log('getTodos', response)
-    if (response && response.data) setTodos(response.data.results)
+    try {
+      const response = await axios.get(`${URL}/v1/todos`,
+        config
+      )
+      console.log('response getTodos', response)
+      console.log('getTodos', response)
+      if (response && response.data) setTodos(response.data.results)
+    } catch (error) {
+      localStorage.removeItem('token')
+      window.location.reload()
+    }
+
   }
   useEffect(() => {
     if (token) getTodos()
@@ -52,8 +82,11 @@ function App() {
     })
       .then(function (response) {
         console.log('login success', response);
-        if (response && response.data && response.data.tokens && response.data.tokens.access) localStorage.setItem('token', JSON.stringify(response.data.tokens.access.token))
-        window.location.reload()
+        if (response && response.data && response.data.tokens && response.data.tokens.access) {
+          localStorage.setItem('token', JSON.stringify(response.data.tokens.access.token))
+          localStorage.setItem('user', JSON.stringify(response.data.user))
+          window.location.reload()
+        }
       })
       .catch(function (error) {
         console.log(error);
@@ -62,22 +95,45 @@ function App() {
 
   const onTodoSubmit = () => {
     console.log(`title: ${title}, desc: ${description}, priority: ${priority}`)
+    const user = localStorage.getItem('user')
+    const parsedUser = JSON.parse(user)
+    const createdBy = parsedUser?.id || ''
+
     axios.post(`${URL}/v1/todos`, {
       title,
       description,
       priority,
       dueDate,
+      createdBy
     },
       config
     )
       .then(function (response) {
         console.log('create todo success', response);
-        // if (response && response.data && response.data.tokens && response.data.tokens.access) localStorage.setItem('token', JSON.stringify(response.data.tokens.access.token))
-        // window.location.reload()
+        window.location.reload()
       })
       .catch(function (error) {
         console.log(error);
       });
+  }
+
+  const onTodoDelete = (todoId) => {
+    try {
+      axios.delete(`${URL}/v1/todos/${todoId}`,
+        config
+      )
+        .then(function (response) {
+          console.log('delete todo success', response);
+          window.location.reload()
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+    } catch (error) {
+
+    }
+
   }
 
   const handleChange = (event) => {
@@ -88,7 +144,7 @@ function App() {
       <Box
         component="form"
         sx={{
-          '& .MuiTextField-root': { m: 1, width: '25ch' },
+          '& .MuiTextField-root': { mt: 1, mb: 1, width: '25ch' },
           height: '100vh',
           display: 'flex',
           flexDirection: 'column',
@@ -130,53 +186,92 @@ function App() {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
+            width: '100%'
           }}>
-            <TextField
-              id="outlined-titleText"
-              label="Title"
-              defaultValue=""
-              helperText="Type your title here"
-              type='text'
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <TextField
-              id="outlined-descriptionText"
-              label="Description"
-              defaultValue=""
-              helperText="Type your description here"
-              type='text'
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <FormControl fullWidth>
-              <InputLabel id="priority-select">Priority</InputLabel>
-              <Select
-                labelId="priority-select-label"
-                id="priority-select-input"
-                value={priority}
-                label="Priority"
-                onChange={handleChange}
-              >
-                <MenuItem value={'low'}>Low</MenuItem>
-                <MenuItem value={'medium'}>Medium</MenuItem>
-                <MenuItem value={'high'}>High</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              id="outlined-dueDateText"
-              label="Due Date"
-              defaultValue=""
-              helperText="Type your due Date here"
-              type='text'
-              onChange={(e) => setDueDate(e.target.value)}
-            />
-            <Button variant="contained" onClick={() => onTodoSubmit()}>Create Todo</Button>
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <TextField
+                id="outlined-titleText"
+                label="Title"
+                defaultValue=""
+                // helperText="Type your title here"
+                type='text'
+                onChange={(e) => setTitle(e.target.value)}
+                sx={{ width: '100%' }}
+              />
+              <TextField
+                id="outlined-descriptionText"
+                label="Description"
+                defaultValue=""
+                // helperText="Type your description here"
+                type='text'
+                onChange={(e) => setDescription(e.target.value)}
+                sx={{ width: '100%' }}
+              />
+              <FormControl fullWidth>
+                <InputLabel id="priority-select">Priority</InputLabel>
+                <Select
+                  labelId="priority-select-label"
+                  id="priority-select-input"
+                  value={priority}
+                  label="Priority"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={'low'}>Low</MenuItem>
+                  <MenuItem value={'medium'}>Medium</MenuItem>
+                  <MenuItem value={'high'}>High</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                id="outlined-dueDateText"
+                label="Due Date"
+                defaultValue=""
+                // helperText="Type your due Date here"
+                type='text'
+                onChange={(e) => setDueDate(e.target.value)}
+                sx={{ width: '100%' }}
+              />
+              <Button variant="contained" onClick={() => onTodoSubmit()}>Create Todo</Button>
 
-            <Box mt={2}>
-              {todos && todos.length && todos.map((i, idx) => {
-                return <p>{i.title}</p>
-              })}
             </Box>
+            <Box ml={2} width={'100%'}>
+              <List sx={{ p: 4, bgcolor: 'background.paper' }}>
+                {todos && todos.length && todos.map((value) => {
+                  const labelId = `checkbox-list-label-${value}`;
 
+                  return (
+                    <ListItem
+                      key={value}
+                      secondaryAction={
+                        <>
+                          <Chip label={value.priority} />
+                          <IconButton aria-label="delete" onClick={() => onTodoDelete(value.id)}>
+                            <DeleteIcon />
+                          </IconButton></>
+                      }
+                      disablePadding
+                    >
+                      <ListItemButton role={undefined} onClick={handleToggle(value)} dense>
+                        <ListItemIcon>
+                          <Checkbox
+                            edge="start"
+                            checked={checked.indexOf(value) !== -1}
+                            tabIndex={-1}
+                            disableRipple
+                            inputProps={{ 'aria-labelledby': labelId }}
+                          />
+                        </ListItemIcon>
+                        <ListItemText id={labelId} primary={`${value.title || '-'}`} />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
           </Box>
         }
       </Box>

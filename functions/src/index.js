@@ -54,7 +54,7 @@ app.use(
       }
       return callback(null, true);
     },
-    credentials: true,
+    // credentials: true,
   })
 );
 // app.options('*', cors());

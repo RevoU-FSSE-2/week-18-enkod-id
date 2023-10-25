@@ -7,6 +7,7 @@ const createTodo = {
     description: Joi.string().required(),
     priority: Joi.string().required(),
     dueDate: Joi.string().required(),
+    createdBy: Joi.string().required(),
   }),
 };
 
@@ -16,6 +17,7 @@ const getTodos = {
     description: Joi.string(),
     priority: Joi.string(),
     dueDate: Joi.string(),
+    createdBy: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
@@ -38,6 +40,7 @@ const updateTodo = {
       description: Joi.string(),
       priority: Joi.string(),
       dueDate: Joi.string(),
+      createdBy: Joi.string().required(),
     })
     .min(1),
 };

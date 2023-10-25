@@ -23,6 +23,11 @@ const todoSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    createdBy: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   {
     timestamps: true,

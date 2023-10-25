@@ -6,11 +6,14 @@ const todoController = require('../../controllers/todo.controller');
 
 const router = express.Router();
 
+// /v1/todos
 router
   .route('/')
   .post(auth('manageTodos'), validate(todoValidation.createTodo), todoController.createTodo)
   .get(auth('getTodos'), validate(todoValidation.getTodos), todoController.getTodos);
 
+// /v1/todos/:todoId
+// ex: /v1/todos/c584dbe
 router
   .route('/:todoId')
   .get(auth('getTodos'), validate(todoValidation.getTodo), todoController.getTodo)
@@ -46,6 +49,7 @@ module.exports = router;
  *               - desc
  *               - priority
  *               - dueDate
+ *               - createdBy
  *             properties:
  *               title:
  *                 type: string
@@ -55,11 +59,14 @@ module.exports = router;
  *                 type: string
  *               dueDate:
  *                  type: string
+ *               createdBy:
+ *                  type: string
  *             example:
  *               title: Test task
  *               description: some description
  *               priority: low
  *               dueDate: 25-10-2023
+ *               createdBy: 6537bb84157b2ca243023809
  *     responses:
  *       "201":
  *         description: Created
