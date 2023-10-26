@@ -1,4 +1,4 @@
-const functions = require('firebase-functions');
+// const functions = require('firebase-functions');
 const express = require('express');
 const helmet = require('helmet');
 const xss = require('xss-clean');
@@ -83,6 +83,6 @@ app.use(errorConverter);
 // handle error
 app.use(errorHandler);
 
-exports.todolistBE = functions.https.onRequest(app);
+// exports.todolistBE = functions.https.onRequest(app);
 
 module.exports = app;

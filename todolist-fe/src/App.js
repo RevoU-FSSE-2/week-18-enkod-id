@@ -19,6 +19,9 @@ import axios from 'axios';
 
 function App() {
   const [token, setToken] = useState(null)
+  const [registerName, setRegisterName] = useState('')
+  const [registerEmail, setRegisterEmail] = useState('')
+  const [registerPassword, setRegisterPassword] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [title, setTitle] = useState('')
@@ -93,6 +96,26 @@ function App() {
       });
   }
 
+  const onRegisterSubmit = () => {
+    console.log(`name: ${registerName}, email: ${registerEmail}, password: ${registerPassword}`)
+    axios.post(`${URL}/v1/auth/register`, {
+      name: registerName,
+      email: registerEmail,
+      password: registerPassword
+    })
+      .then(function (response) {
+        console.log('register success', response);
+        if (response && response.data && response.data.tokens && response.data.tokens.access) {
+          // localStorage.setItem('token', JSON.stringify(response.data.tokens.access.token))
+          // localStorage.setItem('user', JSON.stringify(response.data.user))
+          // window.location.reload()
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
   const onTodoSubmit = () => {
     console.log(`title: ${title}, desc: ${description}, priority: ${priority}`)
     const user = localStorage.getItem('user')
@@ -155,29 +178,63 @@ function App() {
         autoComplete="off"
       >
         {!token &&
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <TextField
-              id="outlined-emailText"
-              label="Email"
-              defaultValue=""
-              helperText="Type your email here"
-              type='email'
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              id="outlined-passwordText"
-              label="Password"
-              defaultValue=""
-              helperText="Type your password here"
-              type='password'
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button variant="contained" onClick={() => onLoginSubmit()}>Login</Button>
+          <Box>
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <TextField
+                id="outlined-emailText"
+                label="Email"
+                defaultValue=""
+                helperText="Type your email here"
+                type='email'
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <TextField
+                id="outlined-passwordText"
+                label="Password"
+                defaultValue=""
+                helperText="Type your password here"
+                type='password'
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button variant="contained" onClick={() => onLoginSubmit()}>Login</Button>
+            </Box>
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <TextField
+                id="outlined-registerNameText"
+                label="Name"
+                defaultValue=""
+                helperText="Type your name here"
+                type='text'
+                onChange={(e) => setRegisterName(e.target.value)}
+              />
+              <TextField
+                id="outlined-registerEmailText"
+                label="Email"
+                defaultValue=""
+                helperText="Type your email here"
+                type='email'
+                onChange={(e) => setRegisterEmail(e.target.value)}
+              />
+              <TextField
+                id="outlined-registerPasswordText"
+                label="Password"
+                defaultValue=""
+                helperText="Type your password here"
+                type='password'
+                onChange={(e) => setRegisterPassword(e.target.value)}
+              />
+              <Button variant="contained" onClick={() => onRegisterSubmit()}>Register</Button>
+            </Box>
           </Box>
         }
         {token &&
